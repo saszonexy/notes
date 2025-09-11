@@ -1,9 +1,22 @@
 import 'dart:convert';
+import 'dart:io' show Platform;
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  static const String baseUrl = "http://localhost:8000/api";
+  static String get baseUrl {
+    if (kIsWeb) {
+      return "http://localhost:8000/api";
+    } else if (Platform.isAndroid) {
+      return "http://10.0.2.2:8000/api";
+    } else if (Platform.isIOS) {
+      return "http://127.0.0.1:8000/api";
+    } else {
+      return "http://192.168.1.10:8000/api";
+    }
+  }
 
   static Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
@@ -30,10 +43,12 @@ class ApiService {
   }
 
   static Future<http.Response> login(String email, String password) async {
-    final url = Uri.parse("$baseUrl/login");
     final response = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
+      Uri.parse("$baseUrl/login"),
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
       body: jsonEncode({
         'email': email,
         'password': password,
@@ -42,9 +57,27 @@ class ApiService {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
+      print("Login response: $data");
+
+      String? token;
+
       if (data['token'] != null) {
-        await saveToken(data['token']);
+        token = data['token'];
+      } else if (data['access_token'] != null) {
+        token = data['access_token'];
+      } else if (data['authorisation'] != null &&
+          data['authorisation']['token'] != null) {
+        token = data['authorisation']['token'];
       }
+
+      if (token != null) {
+        await saveToken(token);
+      } else {
+        print("Token tidak ditemukan di response");
+        throw Exception("Token tidak ditemukan di response");
+      }
+    } else {
+      print("Login gagal: ${response.body}");
     }
 
     return response;
@@ -107,5 +140,45 @@ class ApiService {
         'Accept': 'application/json',
       },
     );
+  }
+
+  static Future<http.Response> getUserInfo() async {
+    final token = await getToken();
+    final url = Uri.parse("$baseUrl/me");
+    return await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    );
+  }
+
+  static Future<http.Response> uploadProfilePhotoWeb(
+      Uint8List bytes, String filename) async {
+    final token = await getToken();
+    final url = Uri.parse("$baseUrl/update-photo");
+
+    var request = http.MultipartRequest('POST', url);
+    request.headers['Authorization'] = 'Bearer $token';
+    request.files.add(
+      http.MultipartFile.fromBytes('photo', bytes, filename: filename),
+    );
+
+    final response = await request.send();
+    return http.Response.fromStream(response);
+  }
+
+
+  static Future<http.Response> uploadProfilePhoto(String filePath) async {
+    final token = await getToken();
+    final url = Uri.parse("$baseUrl/update-photo");
+
+    var request = http.MultipartRequest('POST', url);
+    request.headers['Authorization'] = 'Bearer $token';
+    request.files.add(await http.MultipartFile.fromPath('photo', filePath));
+
+    final response = await request.send();
+    return http.Response.fromStream(response);
   }
 }

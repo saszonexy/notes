@@ -32,7 +32,15 @@ dependencies:
     sdk: flutter
   http: ^1.1.0
   shared_preferences: ^2.3.2
+  image_picker: ^1.0.7
+  file_picker: ^8.0.3
+  mime: ^1.0.6
+  http_parser: ^4.0.2
+
   
+  
+
+
 
 
 
@@ -57,11 +65,12 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
+
+  assets:
+    - assets/deafult_avatar.jpeg
+    - assets/default_avatar.png
+
 
   # To add assets to your application, add an assets section, like this:
   # assets:
@@ -93,3 +102,6 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+
+

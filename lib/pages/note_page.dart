@@ -13,6 +13,7 @@ class NotePage extends StatefulWidget {
 class _NotePageState extends State<NotePage> {
   List<Map<String, dynamic>> notes = [];
   bool isLoading = false;
+  String userEmail = "Guest";
 
   final TextEditingController titleController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
@@ -21,6 +22,14 @@ class _NotePageState extends State<NotePage> {
   void initState() {
     super.initState();
     _fetchNote();
+    _fetchUserInfo();
+  }
+
+  Future<void> _fetchUserInfo() async {
+    final token = await ApiService.getToken();
+    setState(() {
+      userEmail = token != null ? "User Aktif" : "Guest";
+    });
   }
 
   Future<void> _fetchNote() async {
@@ -104,6 +113,33 @@ class _NotePageState extends State<NotePage> {
     }
   }
 
+  Future<void> _deleteNoteWithConfirm(int id) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Konfirmasi"),
+        content: const Text("Apakah kamu yakin ingin menghapus catatan ini?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text("Batal"),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: TWColors.red.shade600,
+            ),
+            child: const Text("Hapus"),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      _deleteNote(id);
+    }
+  }
+
   Future<void> _deleteNote(int id) async {
     setState(() => isLoading = true);
     try {
@@ -131,11 +167,9 @@ class _NotePageState extends State<NotePage> {
 
   void _openNoteDialog({Map<String, dynamic>? note}) {
     if (note != null) {
-      // Edit mode
       titleController.text = note["title"] ?? "";
       contentController.text = note["content"] ?? "";
     } else {
-      // New note
       titleController.clear();
       contentController.clear();
     }
@@ -205,9 +239,17 @@ class _NotePageState extends State<NotePage> {
     return Scaffold(
       backgroundColor: TWColors.gray.shade50,
       appBar: AppBar(
-        title: const Text("Notes"),
-        backgroundColor: TWColors.blue.shade500,
+        title: const Text("My Notes"),
+        backgroundColor: TWColors.blue.shade600,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.account_circle),
+            onPressed: () {
+              Navigator.pushNamed(context, "/profile", arguments: {
+                "email": userEmail,
+              });
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _fetchNote,
@@ -238,13 +280,14 @@ class _NotePageState extends State<NotePage> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
-                              icon:
-                                  const Icon(Icons.edit, color: Colors.indigoAccent),
+                              icon: const Icon(Icons.edit,
+                                  color: Colors.indigoAccent),
                               onPressed: () => _openNoteDialog(note: note),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.redAccent),
-                              onPressed: () => _deleteNote(note["id"]),
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () =>
+                                  _deleteNoteWithConfirm(note["id"]),
                             ),
                           ],
                         ),
