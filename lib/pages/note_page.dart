@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:tailwind_colors/tailwind_colors.dart';
 import '../services/api_service.dart';
+import 'add_note_page.dart';
+import 'detail_note.dart';
+import 'login_page.dart'; 
 
 class NotePage extends StatefulWidget {
   const NotePage({super.key});
@@ -38,7 +40,6 @@ class _NotePageState extends State<NotePage> {
       final response = await ApiService.getNotes();
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-
         setState(() {
           if (data is List) {
             notes = List<Map<String, dynamic>>.from(data);
@@ -58,30 +59,37 @@ class _NotePageState extends State<NotePage> {
     }
   }
 
-  Future<void> _createNote() async {
-    if (titleController.text.isEmpty || contentController.text.isEmpty) {
-      _showError("Judul dan isi tidak boleh kosong");
-      return;
-    }
+  Future<void> _logout() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Konfirmasi Logout"),
+        content: const Text("Apakah kamu yakin ingin keluar?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text("Batal"),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFD2691E),
+            ),
+            child: const Text("Logout"),
+          ),
+        ],
+      ),
+    );
 
-    setState(() => isLoading = true);
-    try {
-      final response = await ApiService.createNote(
-        titleController.text.trim(),
-        contentController.text.trim(),
-      );
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        titleController.clear();
-        contentController.clear();
-        Navigator.pop(context);
-        _fetchNote();
-      } else {
-        _showError("Gagal menambah catatan");
+    if (confirm == true) {
+      await ApiService.logout();
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginPage()),
+          (route) => false,
+        );
       }
-    } catch (e) {
-      _showError("Error: $e");
-    } finally {
-      setState(() => isLoading = false);
     }
   }
 
@@ -127,7 +135,7 @@ class _NotePageState extends State<NotePage> {
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: TWColors.red.shade600,
+              backgroundColor: const Color(0xFFD2691E),
             ),
             child: const Text("Hapus"),
           ),
@@ -159,77 +167,8 @@ class _NotePageState extends State<NotePage> {
   void _showError(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        backgroundColor: TWColors.red.shade600,
+        backgroundColor: const Color(0xFFD2691E),
         content: Text(msg),
-      ),
-    );
-  }
-
-  void _openNoteDialog({Map<String, dynamic>? note}) {
-    if (note != null) {
-      titleController.text = note["title"] ?? "";
-      contentController.text = note["content"] ?? "";
-    } else {
-      titleController.clear();
-      contentController.clear();
-    }
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          top: 24,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: titleController,
-              decoration: const InputDecoration(
-                labelText: "Title",
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: contentController,
-              maxLines: 4,
-              decoration: const InputDecoration(
-                labelText: "Content",
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  if (note == null) {
-                    _createNote();
-                  } else {
-                    _updateNote(note["id"]);
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: TWColors.blue.shade600,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                ),
-                child: Text(
-                  note == null ? "Save Note" : "Update Note",
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -237,13 +176,20 @@ class _NotePageState extends State<NotePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: TWColors.gray.shade50,
+      backgroundColor: const Color(0xFFF5F1E8),
       appBar: AppBar(
-        title: const Text("My Notes"),
-        backgroundColor: TWColors.blue.shade600,
+        title: const Row(
+          children: [
+            Icon(Icons.menu_book, color: Color(0xFF8B4513)),
+            SizedBox(width: 8),
+            Text("My Diary", style: TextStyle(color: Color(0xFF8B4513))),
+          ],
+        ),
+        backgroundColor: const Color(0xFFF5F1E8),
+        elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.account_circle),
+            icon: const Icon(Icons.account_circle, color: Color(0xFF8B4513)),
             onPressed: () {
               Navigator.pushNamed(context, "/profile", arguments: {
                 "email": userEmail,
@@ -251,15 +197,25 @@ class _NotePageState extends State<NotePage> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh, color: Color(0xFF8B4513)),
             onPressed: _fetchNote,
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout, color: Color(0xFF8B4513)),
+            onPressed: _logout,
           ),
         ],
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: CircularProgressIndicator(color: Color(0xFF8B4513)))
           : notes.isEmpty
-              ? const Center(child: Text("Belum ada catatan"))
+              ? const Center(
+                  child: Text(
+                    "Belum ada catatan",
+                    style: TextStyle(color: Color(0xFF8B4513)),
+                  ),
+                )
               : ListView.builder(
                   padding: const EdgeInsets.all(12),
                   itemCount: notes.length,
@@ -267,38 +223,60 @@ class _NotePageState extends State<NotePage> {
                     final note = notes[index];
                     return Card(
                       margin: const EdgeInsets.symmetric(vertical: 8),
+                      color: const Color(0xFFFFFDF7),
+                      elevation: 2,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(8),
+                        side: const BorderSide(
+                            color: Color(0xFFE8D5B7), width: 1),
                       ),
                       child: ListTile(
                         title: Text(
                           note["title"] ?? "Tanpa Judul",
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF8B4513),
+                          ),
                         ),
-                        subtitle: Text(note["content"] ?? ""),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit,
-                                  color: Colors.indigoAccent),
-                              onPressed: () => _openNoteDialog(note: note),
+                        subtitle: Text(
+                          note["content"] ?? "",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(color: Color(0xFF8B4513)),
+                        ),
+                        onTap: () async {
+                          final updated = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => NoteDetailPage(note: note),
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () =>
-                                  _deleteNoteWithConfirm(note["id"]),
-                            ),
-                          ],
+                          );
+
+                          if (updated == true) {
+                            _fetchNote();
+                          }
+                        },
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete,
+                              color: Color(0xFFD2691E)),
+                          onPressed: () => _deleteNoteWithConfirm(note["id"]),
                         ),
                       ),
                     );
                   },
                 ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _openNoteDialog(),
-        backgroundColor: TWColors.blue.shade600,
-        child: const Icon(Icons.add),
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AddNotePage()),
+          );
+          if (result == true) {
+            _fetchNote();
+          }
+        },
+        backgroundColor: const Color(0xFF8B4513),
+        child: const Icon(Icons.edit, color: Colors.white),
       ),
     );
   }

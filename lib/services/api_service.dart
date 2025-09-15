@@ -83,6 +83,29 @@ class ApiService {
     return response;
   }
 
+    static Future<void> logout() async {
+    final token = await getToken();
+    final url = Uri.parse("$baseUrl/logout");
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+
+      print("Logout response: ${response.body}");
+    } catch (e) {
+      print("Logout error: $e");
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+  }
+
+
   static Future<http.Response> getNotes() async {
     final token = await getToken();
     final url = Uri.parse("$baseUrl/notes");
@@ -181,4 +204,19 @@ class ApiService {
     final response = await request.send();
     return http.Response.fromStream(response);
   }
+
+  static Future<http.Response> updateName(String name) async {
+    final token = await getToken();
+    final url = Uri.parse("$baseUrl/update-name");
+    return await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'name': name}),
+    );
+  }
+
 }
