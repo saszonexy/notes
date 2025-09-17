@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:notes/features/core/widgets/custom_button.dart';
+import 'package:notes/core/widgets/custom_button.dart';
 import '../logic/auth_cubit.dart';
 
 class LoginPage extends StatefulWidget {

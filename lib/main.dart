@@ -8,12 +8,13 @@ import 'features/auth/logic/auth_cubit.dart';
 import 'features/auth/logic/auth_state.dart';
 import 'features/auth/data/auth_service.dart';
 import 'features/auth/presentation/login_page.dart';
-import 'features/auth/presentation/profile_page.dart';
+import 'features/auth/presentation/register_page.dart';
+import 'features/notes/presentation/notes_page.dart'; // ⬅️ pakai NotePage kamu
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform, 
+    options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(const MyApp());
 }
@@ -27,6 +28,11 @@ class MyApp extends StatelessWidget {
       create: (_) => AuthCubit(AuthService()),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
+        routes: {
+          '/login': (_) => const LoginPage(),
+          '/register': (_) => const RegisterPage(),
+          '/notes': (_) => const NotePage(), 
+        },
         home: BlocListener<AuthCubit, AuthState>(
           listener: (context, state) {
             if (state is AuthError) {
@@ -38,7 +44,7 @@ class MyApp extends StatelessWidget {
           child: BlocBuilder<AuthCubit, AuthState>(
             builder: (context, state) {
               if (state is Authenticated) {
-                return const ProfilePage();
+                return const NotePage(); // ⬅️ langsung masuk NotePage
               } else if (state is Unauthenticated) {
                 return const LoginPage();
               }
