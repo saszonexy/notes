@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:notes/pages/profile_page.dart';
-import 'pages/login_page.dart';
-import 'pages/register_page.dart';
-import 'pages/note_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+import 'features/auth/logic/auth_cubit.dart';
+import 'features/auth/logic/auth_state.dart';
+import 'features/auth/data/auth_service.dart';
+import 'features/auth/presentation/login_page.dart';
+import 'features/auth/presentation/profile_page.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
@@ -13,18 +19,32 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Notes App',
-      initialRoute: '/register',
-      routes: {
-        '/register': (context) => const RegisterPage(),
-        '/login': (context) => const LoginPage(),
-        '/notes': (context) => const NotePage(), 
-        '/profile': (context) => const ProfilePage(),
-
-
-      },
+    return BlocProvider(
+      create: (_) => AuthCubit(AuthService()),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: BlocListener<AuthCubit, AuthState>(
+          listener: (context, state) {
+            if (state is AuthError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.message)),
+              );
+            }
+          },
+          child: BlocBuilder<AuthCubit, AuthState>(
+            builder: (context, state) {
+              if (state is Authenticated) {
+                return const ProfilePage();
+              } else if (state is Unauthenticated) {
+                return const LoginPage();
+              }
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            },
+          ),
+        ),
+      ),
     );
   }
 }
