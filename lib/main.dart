@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+import 'firebase_options.dart';
+
 import 'features/auth/logic/auth_cubit.dart';
 import 'features/auth/logic/auth_state.dart';
 import 'features/auth/data/auth_service.dart';
@@ -10,7 +12,9 @@ import 'features/auth/presentation/profile_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform, 
+  );
   runApp(const MyApp());
 }
 
