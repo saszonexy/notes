@@ -6,12 +6,13 @@ import 'firebase_options.dart';
 
 import 'features/auth/logic/auth_cubit.dart';
 import 'features/auth/logic/auth_state.dart';
+import 'features/auth/logic/profile_cubit.dart';
 import 'features/auth/data/auth_service.dart';
 import 'features/auth/presentation/login_page.dart';
 import 'features/auth/presentation/register_page.dart';
 import 'features/notes/presentation/notes_page.dart';
 import 'features/auth/presentation/profile_page.dart';
-import 'features/notes/logic/notes_cubit.dart'; 
+import 'features/notes/logic/notes_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,7 +33,10 @@ class MyApp extends StatelessWidget {
           create: (_) => AuthCubit(AuthService()),
         ),
         BlocProvider(
-          create: (_) => NotesCubit(), 
+          create: (_) => NotesCubit(),
+        ),
+        BlocProvider(
+          create: (_) => ProfileCubit(),
         ),
       ],
       child: MaterialApp(
@@ -41,7 +45,7 @@ class MyApp extends StatelessWidget {
           '/login': (_) => const LoginPage(),
           '/register': (_) => const RegisterPage(),
           '/notes': (_) => const NotesPage(),
-          '/profile': (_) => const ProfilePage(),
+          '/profile': (_) => ProfilePage(),
         },
         home: BlocListener<AuthCubit, AuthState>(
           listener: (context, state) {

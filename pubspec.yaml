@@ -11,30 +11,28 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # Firebase
   firebase_core: ^3.6.0
   firebase_auth: ^5.3.0
   cloud_firestore: ^5.4.0
 
-  # State Management
   flutter_bloc: ^9.0.0
   equatable: ^2.0.5
 
-  # Local Storage (untuk simpan login state kalau perlu)
   shared_preferences: ^2.3.2
 
-  # UI & Utils
   google_fonts: ^6.2.1
   intl: ^0.19.0
 
-  # Icon
   cupertino_icons: ^1.0.8
+
+  image_picker: ^1.1.2
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
-  flutter_launcher_icons: ^0.13.1   # <-- Tambahkan ini
+  flutter_launcher_icons: ^0.13.1  
 
 flutter:
   uses-material-design: true
@@ -42,8 +40,10 @@ flutter:
   assets:
     - assets/icons/
     - assets/images/
+    - assets/images/default_avatar.png 
 
 flutter_icons:
   android: true
   ios: true
   image_path: "assets/icons/app_icon.png"
+
