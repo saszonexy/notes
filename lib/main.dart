@@ -9,7 +9,9 @@ import 'features/auth/logic/auth_state.dart';
 import 'features/auth/data/auth_service.dart';
 import 'features/auth/presentation/login_page.dart';
 import 'features/auth/presentation/register_page.dart';
-import 'features/notes/presentation/notes_page.dart'; // ⬅️ pakai NotePage kamu
+import 'features/notes/presentation/notes_page.dart';
+import 'features/auth/presentation/profile_page.dart';
+import 'features/notes/logic/notes_cubit.dart'; 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,14 +26,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => AuthCubit(AuthService()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => AuthCubit(AuthService()),
+        ),
+        BlocProvider(
+          create: (_) => NotesCubit(), 
+        ),
+      ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         routes: {
           '/login': (_) => const LoginPage(),
           '/register': (_) => const RegisterPage(),
-          '/notes': (_) => const NotePage(), 
+          '/notes': (_) => const NotesPage(),
+          '/profile': (_) => const ProfilePage(),
         },
         home: BlocListener<AuthCubit, AuthState>(
           listener: (context, state) {
@@ -44,7 +54,7 @@ class MyApp extends StatelessWidget {
           child: BlocBuilder<AuthCubit, AuthState>(
             builder: (context, state) {
               if (state is Authenticated) {
-                return const NotePage(); 
+                return const NotesPage();
               } else if (state is Unauthenticated) {
                 return const LoginPage();
               }
