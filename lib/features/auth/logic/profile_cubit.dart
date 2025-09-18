@@ -22,10 +22,8 @@ class ProfileCubit extends Cubit<ProfileState> {
         String path;
 
         if (kIsWeb) {
-          // di web, file disimpan sebagai URL blob
           path = pickedFile.path;
         } else {
-          // di mobile, simpan path lokal
           path = File(pickedFile.path).path;
         }
 

@@ -147,7 +147,6 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
           const SizedBox(height: 20),
 
-          // Password
           const Text(
             "Password",
             style: TextStyle(
@@ -177,7 +176,6 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
           const SizedBox(height: 20),
 
-          // Confirm Password
           const Text(
             "Confirm Password",
             style: TextStyle(
@@ -207,7 +205,6 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
           const SizedBox(height: 24),
 
-          // Register Button
           CustomButton(
             text: "Create Notebook Account",
             onPressed: () {

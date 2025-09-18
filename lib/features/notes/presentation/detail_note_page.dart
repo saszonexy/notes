@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/note.dart'; // ✅ pastikan import model Note
+import '../models/note.dart'; 
 
 class NoteDetailPage extends StatelessWidget {
   final Note note;
@@ -74,7 +74,7 @@ class NoteDetailPage extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                note.title, // ✅ tampilkan judul
+                note.title,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -83,7 +83,7 @@ class NoteDetailPage extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                note.content, // ✅ tampilkan isi catatan
+                note.content, 
                 style: const TextStyle(
                   fontSize: 17,
                   color: Color(0xff2d1810),

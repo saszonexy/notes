@@ -28,7 +28,6 @@ class ProfilePage extends StatelessWidget {
       backgroundColor: const Color(0xfff5f5dc),
       body: BlocBuilder<ProfileCubit, ProfileState>(
         builder: (context, state) {
-          // sinkronkan textfield dengan state
           nameController.text = state.name;
 
           return SingleChildScrollView(
@@ -166,7 +165,6 @@ class ProfilePage extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
 
-                        // Input nama
                         TextField(
                           controller: nameController,
                           decoration: InputDecoration(
