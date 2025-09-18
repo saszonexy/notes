@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
           child: BlocBuilder<AuthCubit, AuthState>(
             builder: (context, state) {
               if (state is Authenticated) {
-                return const NotePage(); // ⬅️ langsung masuk NotePage
+                return const NotePage(); 
               } else if (state is Unauthenticated) {
                 return const LoginPage();
               }
