@@ -2,18 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../logic/notes_cubit.dart';
 import '../logic/note_state.dart';
+import '../models/note.dart'; 
 import '../../../core/widgets/custom_button.dart';
 
 class AddNotePage extends StatelessWidget {
   final bool isEdit;
   final int? index;
-  final String? initialText;
+  final Note? initialNote;
 
   AddNotePage({
     super.key,
     this.isEdit = false,
     this.index,
-    this.initialText,
+    this.initialNote,
   });
 
   final TextEditingController titleController = TextEditingController();
@@ -21,8 +22,9 @@ class AddNotePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (isEdit && initialText != null) {
-      noteController.text = initialText!;
+    if (isEdit && initialNote != null) {
+      titleController.text = initialNote!.title;
+      noteController.text = initialNote!.content;
     }
 
     return Scaffold(
@@ -204,11 +206,16 @@ class AddNotePage extends StatelessWidget {
                                 noteController.text.isNotEmpty) {
                               final cubit = context.read<NotesCubit>();
                               if (isEdit && index != null) {
-                                cubit.updateNote(index!, titleController.text,
-                                    noteController.text);
+                                cubit.updateNote(
+                                  index!,
+                                  titleController.text,
+                                  noteController.text,
+                                );
                               } else {
                                 cubit.addNote(
-                                    titleController.text, noteController.text);
+                                  titleController.text,
+                                  noteController.text,
+                                );
                               }
                             }
                           },

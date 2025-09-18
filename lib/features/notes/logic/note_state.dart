@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../models/note.dart';
 
 abstract class NotesState extends Equatable {
   const NotesState();
@@ -12,7 +13,7 @@ class NotesInitial extends NotesState {}
 class NotesLoading extends NotesState {}
 
 class NotesLoaded extends NotesState {
-  final List<String> notes;
+  final List<Note> notes;
   const NotesLoaded(this.notes);
 
   @override
