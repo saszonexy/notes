@@ -29,17 +29,17 @@ class NotesPage extends StatelessWidget {
             ),
           ],
         ),
-        backgroundColor: const Color(0xff6d4c41),
+        backgroundColor: const Color(0xff8b4513),
         elevation: 4,
-        shadowColor: Colors.brown.withOpacity(0.6),
+        shadowColor: const Color.fromARGB(255, 139, 69, 43).withOpacity(0.6),
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color(0xff8d6e63),
-                Color(0xff6d4c41),
+                Color(0xff8b4513),
+                Color(0xff8b4513),
               ],
             ),
           ),
