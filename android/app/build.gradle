@@ -1,17 +1,25 @@
 plugins {
     id "com.android.application"
     // START: FlutterFire Configuration
-    id 'com.google.gms.google-services'
+    id "com.google.gms.google-services"
     // END: FlutterFire Configuration
     id "kotlin-android"
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id "dev.flutter.flutter-gradle-plugin"
 }
 
+// Load keystore properties
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace = "com.example.notes"
-    compileSdk = 
-    ndkVersion = flutter.ndkVersion
+
+    compileSdk = 35
+    ndkVersion = "23.1.7779620"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -23,20 +31,31 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.notes"
-        minSdk = flutter.minSdkVersion
-        targetSdk = 35   
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        applicationId "com.example.notes"
+        minSdk = 23
+        targetSdk = 35
+        versionCode = 1
+        versionName = "1.0"
+    }
+
+
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties["keyAlias"]
+            keyPassword keystoreProperties["keyPassword"]
+            storeFile keystoreProperties["storeFile"] ? file(keystoreProperties["storeFile"]) : null
+            storePassword keystoreProperties["storePassword"]
+        }
     }
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.debug
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            shrinkResources false
         }
     }
 }
-
 
 flutter {
     source = "../.."
