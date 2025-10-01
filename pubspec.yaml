@@ -26,6 +26,12 @@ dependencies:
   cupertino_icons: ^1.0.8
 
   image_picker: ^1.1.2
+  firebase_messaging: ^15.2.10
+  http: ^1.2.0
+  googleapis_auth: ^1.6.0
+  flutter_local_notifications: ^17.2.2
+  
+
 
 
 dev_dependencies:

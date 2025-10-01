@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart'; // Untuk kDebugMode
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:notes/features/notes/logic/note_state.dart';
 import 'package:notes/features/notes/logic/notes_cubit.dart';
 import 'package:notes/features/notes/presentation/detail_note_page.dart';
+import 'package:notes/notifications/presentation/notifications_page.dart';
 import 'add_note.dart';
 import '../../auth/presentation/profile_page.dart';
+import '../../debug/presentation/fcm_test_page.dart'; // Developer FCM test
 import '../../../core/widgets/custom_button.dart';
 
 class NotesPage extends StatelessWidget {
@@ -45,12 +48,62 @@ class NotesPage extends StatelessWidget {
           ),
         ),
         actions: [
+          if (kDebugMode)
+            Container(
+              margin: const EdgeInsets.only(right: 8),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.25),
+                borderRadius: BorderRadius.circular(25),
+                border:
+                    Border.all(color: Colors.orange.withOpacity(0.4), width: 1),
+              ),
+              child: IconButton(
+                icon:
+                    const Icon(Icons.bug_report, color: Colors.white, size: 20),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const FCMTestPage()),
+                  );
+                },
+                tooltip: 'FCM Test (Developer)',
+              ),
+            ),
+
+          Container(
+            margin: const EdgeInsets.only(right: 8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.25),
+              borderRadius: BorderRadius.circular(25),
+              border:
+                  Border.all(color: Colors.white.withOpacity(0.3), width: 1),
+            ),
+            child: Stack(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.notifications,
+                      color: Colors.white, size: 22),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const NotificationsPage()),
+                    );
+                  },
+                  tooltip: 'Notifikasi',
+                ),
+              ],
+            ),
+          ),
+
+          // Icon Profile
           Container(
             margin: const EdgeInsets.only(right: 12),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.25),
               borderRadius: BorderRadius.circular(25),
-              border: Border.all(color: Colors.white.withOpacity(0.3), width: 1),
+              border:
+                  Border.all(color: Colors.white.withOpacity(0.3), width: 1),
             ),
             child: IconButton(
               icon: const Icon(Icons.person, color: Colors.white, size: 22),
@@ -60,6 +113,7 @@ class NotesPage extends StatelessWidget {
                   MaterialPageRoute(builder: (_) => ProfilePage()),
                 );
               },
+              tooltip: 'Profile',
             ),
           )
         ],
@@ -90,8 +144,55 @@ class NotesPage extends StatelessWidget {
                 ),
               ),
             ),
+
+            if (kDebugMode)
+              Container(
+                width: double.infinity,
+                color: Colors.orange[100]?.withOpacity(0.7),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+                child: Row(
+                  children: [
+                    const Icon(Icons.developer_mode,
+                        color: Colors.orange, size: 14),
+                    const SizedBox(width: 6),
+                    const Text(
+                      'Debug Mode - Developer Tools Active',
+                      style: TextStyle(fontSize: 11, color: Colors.brown),
+                    ),
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const FCMTestPage()),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.orange,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text(
+                          'FCM Test',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
             Expanded(
-              child: BlocBuilder<NotesCubit, NotesState>(builder: (context, state) {
+              child: BlocBuilder<NotesCubit, NotesState>(
+                builder: (context, state) {
                   if (state is NotesInitial ||
                       (state is NotesLoaded && state.notes.isEmpty)) {
                     return Center(
@@ -105,7 +206,8 @@ class NotesPage extends StatelessWidget {
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xff8d6e63).withOpacity(0.1),
+                                  color:
+                                      const Color(0xff8d6e63).withOpacity(0.1),
                                   blurRadius: 15,
                                   offset: const Offset(0, 5),
                                 ),
@@ -116,7 +218,8 @@ class NotesPage extends StatelessWidget {
                                 Icon(
                                   Icons.menu_book_outlined,
                                   size: 90,
-                                  color: const Color(0xff8b4513).withOpacity(0.4),
+                                  color:
+                                      const Color(0xff8b4513).withOpacity(0.4),
                                 ),
                                 const SizedBox(height: 20),
                                 const Text(
@@ -133,7 +236,8 @@ class NotesPage extends StatelessWidget {
                                   "Mulai tulis catatan pertamamu!",
                                   style: TextStyle(
                                     fontSize: 15,
-                                    color: const Color(0xff8d6e63).withOpacity(0.7),
+                                    color: const Color(0xff8d6e63)
+                                        .withOpacity(0.7),
                                     fontWeight: FontWeight.w400,
                                   ),
                                 ),
@@ -157,18 +261,21 @@ class NotesPage extends StatelessWidget {
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xff8d6e63).withOpacity(0.15),
+                                  color:
+                                      const Color(0xff8d6e63).withOpacity(0.15),
                                   blurRadius: 12,
                                   offset: const Offset(0, 4),
                                 ),
                                 BoxShadow(
-                                  color: const Color(0xff8d6e63).withOpacity(0.05),
+                                  color:
+                                      const Color(0xff8d6e63).withOpacity(0.05),
                                   blurRadius: 6,
                                   offset: const Offset(0, 1),
                                 ),
                               ],
                               border: Border.all(
-                                color: const Color(0xff8d6e63).withOpacity(0.08),
+                                color:
+                                    const Color(0xff8d6e63).withOpacity(0.08),
                                 width: 1.5,
                               ),
                             ),
@@ -217,7 +324,8 @@ class NotesPage extends StatelessWidget {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (_) => NoteDetailPage(note: note, index: index),
+                                      builder: (_) => NoteDetailPage(
+                                          note: note, index: index),
                                     ),
                                   );
                                 },
@@ -226,10 +334,12 @@ class NotesPage extends StatelessWidget {
                                   children: [
                                     Container(
                                       decoration: BoxDecoration(
-                                        color: const Color(0xff8d6e63).withOpacity(0.12),
+                                        color: const Color(0xff8d6e63)
+                                            .withOpacity(0.12),
                                         borderRadius: BorderRadius.circular(10),
                                         border: Border.all(
-                                          color: const Color(0xff8d6e63).withOpacity(0.2),
+                                          color: const Color(0xff8d6e63)
+                                              .withOpacity(0.2),
                                           width: 0.5,
                                         ),
                                       ),
@@ -370,7 +480,7 @@ class NotesPage extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              context.read<NotesCubit>().deleteNote(index);
+              context.read<NotesCubit>().deleteNote(index as String);
               Navigator.pop(ctx);
             },
             style: TextButton.styleFrom(

@@ -207,7 +207,7 @@ class AddNotePage extends StatelessWidget {
                               final cubit = context.read<NotesCubit>();
                               if (isEdit && index != null) {
                                 cubit.updateNote(
-                                  index!,
+                                  index! as String,
                                   titleController.text,
                                   noteController.text,
                                 );
