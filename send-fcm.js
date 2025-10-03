@@ -106,12 +106,12 @@ async function main() {
     await fcm.getAccessToken();
     
     const deviceToken =
-      "fINZpX-zfXiDakZewrjxxP:APA91bGQQ1FGncVbfJooJ6Bdd7JSdgsrOcw5SPhTCNWiCnaVcKZGtuAXTMOoy84O4_q9PgtMcTE5Bo16d2LlVPF4BlGWZA25Z0U5rAZ0l_E5qGL9Glumvns";
+      "fK7wB39bSxKVKsLIvhuJtL:APA91bGaCB8g2HSAHoBC7qM8TwtphGbqakHIjEBhe9o5TD6ZsHO_xORuzgEtXA8YfmuPntEQeRRJjSpNsnjionA9WIsZqXIe0LT6D1c3x8KCIQB3ltGgf0I";
     
     await fcm.sendToDevice(
       deviceToken,
-      '🔥 Hello from Node.js!',
-      'Notification berhasil dikirim dari server FCM!',
+      'Selamat Pagi!',
+      'Selamat pagi semua',
       { 
         source: 'nodejs', 
         timestamp: Date.now().toString(),

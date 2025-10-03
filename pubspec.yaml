@@ -47,6 +47,8 @@ flutter:
     - assets/icons/
     - assets/images/
     - assets/images/default_avatar.png 
+    - web/firebase-messaging-sw.js
+
 
 flutter_icons:
   android: true

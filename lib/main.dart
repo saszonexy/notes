@@ -6,6 +6,7 @@ import 'package:notes/notifications/presentation/notifications_page.dart';
 
 import 'firebase_options.dart';
 import 'services/notification_service.dart';
+import 'services/notification_manager.dart';
 
 import 'features/auth/logic/auth_cubit.dart';
 import 'features/auth/logic/auth_state.dart';
@@ -24,10 +25,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  debugPrint("🔔 Background Message: ${message.notification?.title}");
-  debugPrint("📝 Background Body: ${message.notification?.body}");
-  debugPrint("📊 Background Data: ${message.data}");
-
+  debugPrint("Background Message: ${message.notification?.title}");
+  debugPrint("Background Body: ${message.notification?.body}");
+  debugPrint("Background Data: ${message.data}");
 }
 
 void main() async {
@@ -61,30 +61,70 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _setupFCMListeners() {
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      debugPrint('🔔 Foreground Message: ${message.notification?.title}');
-      debugPrint('📝 Foreground Body: ${message.notification?.body}');
-      debugPrint('📊 Foreground Data: ${message.data}');
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      debugPrint('Foreground Message: ${message.notification?.title}');
+      debugPrint('Foreground Body: ${message.notification?.body}');
+      debugPrint('Foreground Data: ${message.data}');
 
       if (message.notification != null) {
+        await NotificationManager().saveNotification(
+          NotificationData(
+            id: message.messageId ??
+                DateTime.now().millisecondsSinceEpoch.toString(),
+            title: message.notification!.title ?? 'Notifikasi',
+            body: message.notification!.body ?? '',
+            timestamp: DateTime.now(),
+            isRead: false,
+            data: message.data,
+          ),
+        );
+
         _showForegroundNotification(message);
       }
     });
 
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      debugPrint('🎯 Notification tapped! ${message.notification?.title}');
-      debugPrint('📊 Tapped Data: ${message.data}');
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
+      debugPrint('Notification tapped! ${message.notification?.title}');
+      debugPrint('Tapped Data: ${message.data}');
+
+      if (message.notification != null) {
+        await NotificationManager().saveNotification(
+          NotificationData(
+            id: message.messageId ??
+                DateTime.now().millisecondsSinceEpoch.toString(),
+            title: message.notification!.title ?? 'Notifikasi',
+            body: message.notification!.body ?? '',
+            timestamp: DateTime.now(),
+            isRead: false,
+            data: message.data,
+          ),
+        );
+      }
 
       _handleNotificationTap(message);
     });
 
     FirebaseMessaging.instance
         .getInitialMessage()
-        .then((RemoteMessage? message) {
+        .then((RemoteMessage? message) async {
       if (message != null) {
         debugPrint(
-            '🚀 App launched from notification: ${message.notification?.title}');
-        debugPrint('📊 Launch Data: ${message.data}');
+            'App launched from notification: ${message.notification?.title}');
+        debugPrint('Launch Data: ${message.data}');
+
+        if (message.notification != null) {
+          await NotificationManager().saveNotification(
+            NotificationData(
+              id: message.messageId ??
+                  DateTime.now().millisecondsSinceEpoch.toString(),
+              title: message.notification!.title ?? 'Notifikasi',
+              body: message.notification!.body ?? '',
+              timestamp: DateTime.now(),
+              isRead: false,
+              data: message.data,
+            ),
+          );
+        }
 
         Future.delayed(const Duration(seconds: 1), () {
           _handleNotificationTap(message);
@@ -127,25 +167,19 @@ class _MyAppState extends State<MyApp> {
       final route = data['route'];
       switch (route) {
         case '/notes':
-          navigatorKey.currentState?.pushNamedAndRemoveUntil(
-            '/notes',
-            (route) => false,
-          );
+          navigatorKey.currentState
+              ?.pushNamedAndRemoveUntil('/notes', (route) => false);
           break;
         case '/profile':
           navigatorKey.currentState?.pushNamed('/profile');
           break;
         default:
-          navigatorKey.currentState?.pushNamedAndRemoveUntil(
-            '/notes',
-            (route) => false,
-          );
+          navigatorKey.currentState
+              ?.pushNamedAndRemoveUntil('/notes', (route) => false);
       }
     } else {
-      navigatorKey.currentState?.pushNamedAndRemoveUntil(
-        '/notes',
-        (route) => false,
-      );
+      navigatorKey.currentState
+          ?.pushNamedAndRemoveUntil('/notes', (route) => false);
     }
   }
 
@@ -167,8 +201,7 @@ class _MyAppState extends State<MyApp> {
           '/notes': (_) => const NotesPage(),
           '/profile': (_) => ProfilePage(),
           '/notifications': (_) => const NotificationsPage(),
-          '/fcm-test': (_) => const FCMTestPage(), 
-
+          '/fcm-test': (_) => const FCMTestPage(),
         },
         home: BlocListener<AuthCubit, AuthState>(
           listener: (context, state) async {
